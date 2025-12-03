@@ -7,6 +7,7 @@ import { Game } from "./types/game";
 import { RoomState } from "./types/room";
 import { PlayerState } from "./types/player";
 import { PlayerSocket } from "./types/socket";
+import { startGameLoop } from "./game/gameLoop";
 
 // creo una player queue
 const playerQueue: PlayerSocket[] = [];
@@ -92,6 +93,7 @@ io.on("connection", (socket: PlayerSocket) => {
 });
 
 const PORT = 3000;
+startGameLoop(io, gameState);
 server.listen(PORT, () => {
   console.log(`🔥 Game server in ascolto su http://localhost:${PORT}`);
 });
