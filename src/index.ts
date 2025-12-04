@@ -55,11 +55,13 @@ io.on("connection", (socket: PlayerSocket) => {
       id: player1.id,
       position: 0,
       roomId: roomId,
+      lastTap: null
     };
     const playerState2: PlayerState = {
       id: player2.id,
       position: 0,
       roomId: roomId,
+      lastTap: null
     };
     const roomState: RoomState = {
       players: {
