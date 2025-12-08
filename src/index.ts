@@ -109,8 +109,8 @@ io.on("connection", (socket: PlayerSocket) => {
     console.log("Player disconnesso", socket.id);
   });
 });
+const PORT = process.env.PORT || 3000;
 
-const PORT = 3000;
 startGameLoop(io, gameState);
 server.listen(PORT, () => {
   console.log(`🔥 Game server in ascolto su http://localhost:${PORT}`);
