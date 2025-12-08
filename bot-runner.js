@@ -4,9 +4,7 @@ const { io } = require("socket.io-client");
 const TAP_INTERVAL = 120; // millisecondi tra un tap e l’altro
 const ERROR_PROBABILITY = 0.05; // 5% tappo lo stesso lato
 const INACTIVITY_PROB = 0.02; // 2% salto un tap
-const TAP_SIDES = ["L", "R"];
 
-// FUNZIONE PER CREARE UN BOT
 function createBot(name) {
   const socket = io("http://localhost:3000", {
     transports: ["websocket"],
@@ -25,12 +23,12 @@ function createBot(name) {
   });
 
   socket.on("state_update", (state) => {
-    const me = state.players[socket.id];
-    if (me) {
-      console.log(
-        `📍 ${name} pos=${me.position.toFixed(2)} vel=${me.velocity.toFixed(2)}`
-      );
-    }
+    const me = state.players?.[socket.id];
+
+    // Se il bot non esiste più nella room → ignora il tick
+    if (!me) return;
+
+    console.log(`📍 ${name} pos=${me.position.toFixed(2)} vel=${me.velocity}`);
   });
 
   socket.on("race_end", (res) => {
@@ -45,7 +43,6 @@ function createBot(name) {
     setInterval(() => {
       // 1) Simula inattività
       if (Math.random() < INACTIVITY_PROB) {
-        // non faccio nulla → il server vedrà lastTap=null → decelerazione
         return;
       }
 

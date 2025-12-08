@@ -55,13 +55,17 @@ io.on("connection", (socket: PlayerSocket) => {
       id: player1.id,
       position: 0,
       roomId: roomId,
-      lastTap: null
+      lastTap: null,
+      velocity: 0,
+      prevTap: null,
     };
     const playerState2: PlayerState = {
       id: player2.id,
       position: 0,
       roomId: roomId,
-      lastTap: null
+      lastTap: null,
+      velocity: 0,
+      prevTap: null,
     };
     const roomState: RoomState = {
       players: {
@@ -88,6 +92,18 @@ io.on("connection", (socket: PlayerSocket) => {
       players: [player1.id, player2.id],
     });
   }
+  socket.on("tap", (data) => {
+    const roomId = socket.roomId;
+    if (!roomId) return;
+
+    const room = gameState.rooms[roomId];
+    if (!room) return;
+
+    const player = room.players[socket.id];
+    if (!player) return;
+
+    player.lastTap = data.side; // <-- fondamentale
+  });
 
   socket.on("disconnect", () => {
     console.log("Player disconnesso", socket.id);

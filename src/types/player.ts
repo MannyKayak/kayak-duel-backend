@@ -4,7 +4,8 @@ export type PlayerState = {
   id: string;
   position: number;
   roomId: string;
-  velocity?: number;
+  velocity: number;
   lastTap: Tap;
+  prevTap: Tap;
   lastTapTime?: number;
 };

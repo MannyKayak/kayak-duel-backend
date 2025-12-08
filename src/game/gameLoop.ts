@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import { Game } from "../types/game";
 import { RoomState } from "../types/room";
 
-const FINISH_DISTANCE = 100;
+const FINISH_DISTANCE = 20;
 
 // tuning valori
 const MAX_VELOCITY = 8;
@@ -15,24 +15,25 @@ const INACTIVITY_PENALTY = 0.8;
 export function startGameLoop(io: Server, gameState: Game) {
   setInterval(() => {
     for (const roomId in gameState.rooms) {
-      const room: RoomState = gameState.rooms[roomId];
+      const room: RoomState | undefined = gameState.rooms[roomId];
+      if (!room) continue;
+
       const players = room.players;
+      if (!players) continue;
 
       for (const playerId in players) {
         const player = players[playerId];
+        if (!player) continue;
 
         // 1. Calcolo velocità
         if (player.lastTap === null) {
-          // inattività
           player.velocity -= INACTIVITY_PENALTY;
         } else if (
           player.prevTap !== null &&
           player.lastTap !== player.prevTap
         ) {
-          // alternanza → accelera
           player.velocity += ACCELERATION;
         } else if (player.prevTap === player.lastTap) {
-          // tap sbagliato → decelera
           player.velocity -= WRONG_TAP_PENALTY;
         }
 
@@ -44,20 +45,20 @@ export function startGameLoop(io: Server, gameState: Game) {
         player.position += player.velocity * 0.1;
 
         // 3. Salvo per tick successivo
-        player.prevTap = player.lastTap;
-        player.lastTap = null;
+        if (player.lastTap !== null) {
+          player.prevTap = player.lastTap;
+        }
 
         // 4. Fine gara
         if (player.position >= FINISH_DISTANCE) {
           io.to(roomId).emit("race_end", { winner: player.id });
-
           delete gameState.rooms[roomId];
           break;
         }
       }
 
-      // 5. Invia nuovo stato a giocatori
+      // 5. Invia stato aggiornato
       io.to(roomId).emit("state_update", room);
     }
-  }, 1000 / 20); // 20 tick al secondo
+  }, 1000 / 20);
 }
